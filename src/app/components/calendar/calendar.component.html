@@ -1,0 +1,47 @@
+<p>calendar works!</p>
+
+
+<div class="control-section">
+    <button (click)="onClickPrev()"> &lt;</button>
+    <select (change)="generateCalendar(selectedYear, selectedMonth)" [(ngModel)]="selectedMonth">
+        @for (month of months; track $index) {
+        <option [value]="$index">{{month}}</option>
+        }
+    </select>
+    <select (change)="generateCalendar(selectedYear, selectedMonth)" [(ngModel)]="selectedYear">
+        @for (year of getYears(); track $index) {
+        <option [value]="year">{{year}}</option>
+        }
+    </select>
+    <button (click)="onClickNext()"> &gt;</button>
+</div>
+
+@switch (calendarMode) {
+@case ('Monthly') {
+<table>
+    <thead>
+        <tr>
+            @for (day of weekdays; track $index) {
+            <th>{{ day }}</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @for (week of calendar; track $index) {
+        <tr>
+            @for (day of week; track $index) {
+            <td [ngClass]="{'grey-out': day?.prevMonth || day?.nextMonth}">{{ day.day }}</td>
+            }
+        </tr>
+        }
+    </tbody>
+</table>
+}
+@case ('Weekly') {
+<div>Daily</div>
+}
+@case ('Daily') {
+<div>Daily</div>
+}
+
+}
