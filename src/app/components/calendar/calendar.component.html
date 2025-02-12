@@ -14,10 +14,16 @@
         }
     </select>
     <button (click)="onClickNext()"> &gt;</button>
+
+    <button (click)="changeCalendarMode('Monthly')"> Monthly</button>
+    <button (click)="changeCalendarMode('Weekly')"> Weekly</button>
+    <button (click)="changeCalendarMode('Daily')"> Daily</button>
+
 </div>
 
 @switch (calendarMode) {
 @case ('Monthly') {
+<div>Monthly</div>
 <table>
     <thead>
         <tr>
@@ -38,7 +44,45 @@
 </table>
 }
 @case ('Weekly') {
-<div>Daily</div>
+<div>Weekly</div>
+<table>
+    <thead>
+        <tr>
+            <th>Time</th>
+            @for (day of weekdays; track $index) {
+            <th>{{ day }}</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @for (hour of getHours(); track $index) {
+        <tr>
+            <td rowspan="4">{{hour}}</td>
+            @for (day of weekdays; track $index) {
+            <td></td>
+            }
+        </tr>
+
+        <tr>
+            @for (day of weekdays; track $index) {
+            <td></td>
+            }
+        </tr>
+
+        <tr>
+            @for (day of weekdays; track $index) {
+            <td></td>
+            }
+        </tr>
+
+        <tr>
+            @for (day of weekdays; track $index) {
+            <td></td>
+            }
+        </tr>
+        }
+    </tbody>
+</table>
 }
 @case ('Daily') {
 <div>Daily</div>

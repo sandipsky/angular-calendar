@@ -92,13 +92,26 @@ export class CalendarComponent {
     return years;
   }
 
+  getHours() {
+    let hours: string[] = [];
+    for (let i = 0; i <= 23; i++) {
+      let hour = String(i).padStart(2, '0') + ':00';
+      hours.push(hour);
+    }
+    return hours;
+  }
+
+  changeCalendarMode(mode: 'Monthly' | 'Weekly' | 'Daily') {
+    this.calendarMode = mode;
+  }
+
   generateCalendar(year: number, month: number) {
     this.calendar = [];
     const firstDayOfMonth = new Date(year, month, 1);
     const lastDayOfMonth = new Date(year, month + 1, 0);
     const startingDay = firstDayOfMonth.getDay();
     const totalDays = lastDayOfMonth.getDate();
-    const lastMonthDay = new Date(year, month, 0); 
+    const lastMonthDay = new Date(year, month, 0);
     const prevMonthTotalDays = lastMonthDay.getDate();
 
     let weekRow = [];
