@@ -1,7 +1,8 @@
-<p>calendar works!</p>
-
-
 <div class="control-section">
+    <select [(ngModel)]="calendarType">
+        <option [value]="'AD'">AD</option>
+        <option [value]="'BS'">BS</option>
+    </select>
     <button (click)="onClickPrev()"> &lt;</button>
     <select (change)="generateCalendar(selectedYear, selectedMonth)" [(ngModel)]="selectedMonth">
         @for (month of months; track $index) {
@@ -21,6 +22,7 @@
 
 </div>
 
+@if(calendarType == 'AD') {
 @switch (calendarMode) {
 @case ('Monthly') {
 <div>Monthly</div>
@@ -49,8 +51,8 @@
     <thead>
         <tr>
             <th>Time</th>
-            @for (day of weekdays; track $index) {
-            <th>{{ day }}</th>
+            @for (day of calendar[selectedWeekIndex]; track $index) {
+            <th>{{day.day}} {{weekdays[$index]}}</th>
             }
         </tr>
     </thead>
@@ -63,29 +65,44 @@
             }
         </tr>
 
-        <tr>
-            @for (day of weekdays; track $index) {
-            <td></td>
-            }
-        </tr>
-
-        <tr>
-            @for (day of weekdays; track $index) {
-            <td></td>
-            }
-        </tr>
-
+        @for (num of [1,2,3]; track $index) {
         <tr>
             @for (day of weekdays; track $index) {
             <td></td>
             }
         </tr>
         }
+        }
     </tbody>
 </table>
 }
 @case ('Daily') {
 <div>Daily</div>
-}
+<table>
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>{{getCurrentWeekDay()}} {{selectedDay}}, {{months[selectedMonth]}} {{selectedYear}}</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (hour of getHours(); track $index) {
+        <tr>
+            <td rowspan="4">{{hour}}</td>
+            <td></td>
+        </tr>
 
+        @for (num of [1,2,3]; track $index) {
+        <tr>
+            <td></td>
+        </tr>
+        }
+        }
+    </tbody>
+</table>
+}
+}
+}
+@else {
+    <div>Coming soon</div>
 }

@@ -10,9 +10,10 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './calendar.component.css'
 })
 export class CalendarComponent {
-  selectedYear: number = 2025;
-  selectedMonth: number = 1;
-  selectedDay: number = 1;
+  selectedYear: number = new Date().getFullYear();
+  selectedMonth: number = new Date().getMonth();
+  selectedDay: number = new Date().getDate();
+  selectedWeekIndex: number = 0;
   calendarType: 'AD' | 'BS' = 'AD';
   calendarMode: 'Monthly' | 'Weekly' | 'Daily' = 'Monthly';
   weekdays: string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -30,10 +31,13 @@ export class CalendarComponent {
     'November',
     'December',
   ];
-  calendar: any = [];
+  calendar: any[] = [];
 
   constructor() {
     this.generateCalendar(this.selectedYear, this.selectedMonth);
+    this.selectedWeekIndex = this.calendar.findIndex(week =>
+      week.some((day: any) => day.day === String(this.selectedDay).padStart(2, '0'))
+    );
   }
 
   onClickPrev() {
@@ -42,10 +46,10 @@ export class CalendarComponent {
         this.gotoPreviousMonth();
         break;
       case 'Weekly':
-        this.gotoPreviousMonth();
+        this.gotoPreviousWeek();
         break;
       case 'Daily':
-        this.gotoPreviousMonth();
+        this.gotoPreviousDay();
         break;
     }
   }
@@ -56,10 +60,10 @@ export class CalendarComponent {
         this.gotoNextMonth();
         break;
       case 'Weekly':
-        this.gotoNextMonth();
+        this.gotoNextWeek();
         break;
       case 'Daily':
-        this.gotoNextMonth();
+        this.gotoNextDay();
         break;
     }
   }
@@ -82,6 +86,60 @@ export class CalendarComponent {
       this.selectedMonth++;
     }
     this.generateCalendar(this.selectedYear, this.selectedMonth);
+  }
+
+  gotoPreviousWeek() {
+    if (this.selectedWeekIndex == 0) {
+      this.gotoPreviousMonth();
+      this.selectedWeekIndex = this.calendar?.length - 1;
+    }
+    else {
+      this.selectedWeekIndex -= 1;
+    }
+  }
+
+  gotoNextWeek() {
+    if (this.selectedWeekIndex == this.calendar?.length - 1) {
+      this.gotoNextMonth();
+      this.selectedWeekIndex = 0;
+    }
+    else {
+      this.selectedWeekIndex += 1;
+    }
+  }
+
+  gotoPreviousDay() {
+    if (this.selectedDay == 1) {
+      this.gotoPreviousMonth();
+      this.selectedDay = new Date(this.selectedYear, this.selectedMonth + 1, 0).getDate();
+    }
+    else if (this.getCurrentWeekDay() == 'Sun') {
+      this.gotoPreviousWeek();
+      this.selectedDay -= 1;
+    }
+    else {
+      this.selectedDay -= 1;
+    }
+  }
+
+  gotoNextDay() {
+    const totalDays = new Date(this.selectedYear, this.selectedMonth + 1, 0).getDate();
+    if (this.selectedDay == totalDays) {
+      this.gotoNextMonth();
+      this.selectedDay = 1;
+    }
+    else if (this.getCurrentWeekDay() == 'Sat') {
+      this.gotoNextWeek();
+      this.selectedDay += 1;
+    }
+    else {
+      this.selectedDay += 1;
+    }
+  }
+
+  getCurrentWeekDay() {
+    const currentDay = new Date(`${this.selectedYear}-${this.selectedMonth + 1}-${this.selectedDay}`).getDay();
+    return this.weekdays[currentDay];
   }
 
   getYears() {
@@ -107,12 +165,9 @@ export class CalendarComponent {
 
   generateCalendar(year: number, month: number) {
     this.calendar = [];
-    const firstDayOfMonth = new Date(year, month, 1);
-    const lastDayOfMonth = new Date(year, month + 1, 0);
-    const startingDay = firstDayOfMonth.getDay();
-    const totalDays = lastDayOfMonth.getDate();
-    const lastMonthDay = new Date(year, month, 0);
-    const prevMonthTotalDays = lastMonthDay.getDate();
+    const startingDay = new Date(year, month, 1).getDay();
+    const totalDays = new Date(year, month + 1, 0).getDate();
+    const prevMonthTotalDays = new Date(year, month, 0).getDate();
 
     let weekRow = [];
 
