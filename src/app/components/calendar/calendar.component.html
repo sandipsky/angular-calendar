@@ -4,16 +4,31 @@
         <option [value]="'BS'">BS</option>
     </select>
     <button (click)="onClickPrev()"> &lt;</button>
-    <select (change)="generateCalendar(selectedYear, selectedMonth)" [(ngModel)]="selectedMonth">
+    @if (calendarType == 'AD') {
+    <select (change)="generateCalendar()" [(ngModel)]="selectedMonth">
         @for (month of months; track $index) {
         <option [value]="$index">{{month}}</option>
         }
     </select>
-    <select (change)="generateCalendar(selectedYear, selectedMonth)" [(ngModel)]="selectedYear">
+    <select (change)="generateCalendar()" [(ngModel)]="selectedYear">
         @for (year of getYears(); track $index) {
         <option [value]="year">{{year}}</option>
         }
     </select>
+    }
+    @else {
+    <select (change)="generateNepaliCalendar()" [(ngModel)]="selectedNepaliMonth">
+        @for (month of nepaliMonths; track $index) {
+        <option [value]="$index">{{month}}</option>
+        }
+    </select>
+    <select (change)="generateNepaliCalendar()" [(ngModel)]="selectedNepaliYear">
+        @for (year of getNepaliYears(); track $index) {
+        <option [value]="year">{{year}}</option>
+        }
+    </select>
+    }
+
     <button (click)="onClickNext()"> &gt;</button>
 
     <button (click)="changeCalendarMode('Monthly')"> Monthly</button>
@@ -104,5 +119,23 @@
 }
 }
 @else {
-    <div>Coming soon</div>
+<div>Monthly</div>
+<table>
+    <thead>
+        <tr>
+            @for (day of weekdays; track $index) {
+            <th>{{ day }}</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @for (week of nepaliCalendar; track $index) {
+        <tr>
+            @for (day of week; track $index) {
+            <td [ngClass]="{'grey-out': day?.prevMonth || day?.nextMonth}">{{ day.day }}</td>
+            }
+        </tr>
+        }
+    </tbody>
+</table>
 }
