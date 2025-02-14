@@ -154,12 +154,12 @@ export class CalendarComponent {
   }
 
   gotoPreviousNepaliWeek() {
-    if (this.selectedWeekIndex == 0) {
-      this.gotoPreviousMonth();
-      this.selectedWeekIndex = this.calendar?.length - 1;
+    if (this.selectedNepaliWeekIndex == 0) {
+      this.gotoPreviousNepaliMonth();
+      this.selectedNepaliWeekIndex = this.nepaliCalendar?.length - 1;
     }
     else {
-      this.selectedWeekIndex -= 1;
+      this.selectedNepaliWeekIndex -= 1;
     }
   }
 
@@ -174,12 +174,12 @@ export class CalendarComponent {
   }
 
   gotoNextNepaliWeek() {
-    if (this.selectedWeekIndex == this.calendar?.length - 1) {
-      this.gotoNextMonth();
-      this.selectedWeekIndex = 0;
+    if (this.selectedNepaliWeekIndex == this.nepaliCalendar?.length - 1) {
+      this.gotoNextNepaliMonth();
+      this.selectedNepaliWeekIndex = 0;
     }
     else {
-      this.selectedWeekIndex += 1;
+      this.selectedNepaliWeekIndex += 1;
     }
   }
 
@@ -198,16 +198,16 @@ export class CalendarComponent {
   }
 
   gotoPreviousNepaliDay() {
-    if (this.selectedDay == 1) {
-      this.gotoPreviousMonth();
-      this.selectedDay = new Date(this.selectedYear, this.selectedMonth + 1, 0).getDate();
+    if (this.selectedNepaliDay == 1) {
+      this.gotoPreviousNepaliMonth();
+      this.selectedNepaliDay = new NepaliDate(this.selectedNepaliYear, this.selectedNepaliMonth + 1, 0).getDate();
     }
-    else if (this.getCurrentWeekDay() == 'Sun') {
-      this.gotoPreviousWeek();
-      this.selectedDay -= 1;
+    else if (this.getCurrentNepaliWeekDay() == 'Sun') {
+      this.gotoPreviousNepaliWeek();
+      this.selectedNepaliDay -= 1;
     }
     else {
-      this.selectedDay -= 1;
+      this.selectedNepaliDay -= 1;
     }
   }
 
@@ -227,17 +227,17 @@ export class CalendarComponent {
   }
 
   gotoNextNepaliDay() {
-    const totalDays = new Date(this.selectedYear, this.selectedMonth + 1, 0).getDate();
-    if (this.selectedDay == totalDays) {
-      this.gotoNextMonth();
-      this.selectedDay = 1;
+    const totalDays = new NepaliDate(this.selectedNepaliYear, this.selectedNepaliMonth + 1, 0).getDate();
+    if (this.selectedNepaliDay == totalDays) {
+      this.gotoNextNepaliMonth();
+      this.selectedNepaliDay = 1;
     }
-    else if (this.getCurrentWeekDay() == 'Sat') {
-      this.gotoNextWeek();
-      this.selectedDay += 1;
+    else if (this.getCurrentNepaliWeekDay() == 'Sat') {
+      this.gotoNextNepaliWeek();
+      this.selectedNepaliDay += 1;
     }
     else {
-      this.selectedDay += 1;
+      this.selectedNepaliDay += 1;
     }
   }
 
@@ -247,7 +247,7 @@ export class CalendarComponent {
   }
 
   getCurrentNepaliWeekDay() {
-    const currentDay = new Date(`${this.selectedYear}-${this.selectedMonth + 1}-${this.selectedDay}`).getDay();
+    const currentDay = new NepaliDate(`${this.selectedNepaliYear}-${this.selectedNepaliMonth + 1}-${this.selectedNepaliDay}`).getDay();
     return this.weekdays[currentDay];
   }
 
@@ -278,6 +278,33 @@ export class CalendarComponent {
 
   changeCalendarMode(mode: 'Monthly' | 'Weekly' | 'Daily') {
     this.calendarMode = mode;
+
+    if (mode == 'Monthly') {
+      this.selectedDay = 1;
+      this.selectedNepaliDay = 1;
+      this.selectedNepaliWeekIndex = 0;
+      this.selectedWeekIndex = 0;
+    }
+  }
+
+  convertToNepaliDate(date: string) {
+    const d = new NepaliDate(new Date(date)).getDateObject();
+    console.log(d);
+    return '1'; 
+  }
+
+  convertToEnglishDate(date: string) {
+
+  }
+
+  getDate(day: number, monthOffset = 0) {
+    const date = new Date(this.selectedYear, this.selectedMonth + monthOffset, day);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  }
+
+  getNepaliDate(day: number, monthOffset = 0) {
+    const date = new NepaliDate(this.selectedNepaliYear, this.selectedNepaliMonth + monthOffset, day);
+    return `${date.getYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   }
 
   generateCalendar() {
@@ -290,11 +317,20 @@ export class CalendarComponent {
 
     // Add previous month's days
     for (let i = startingDay - 1; i >= 0; i--) {
-      weekRow.push({ day: String(prevMonthTotalDays - i).padStart(2, '0'), prevMonth: true });
+      const day = prevMonthTotalDays - i;
+      weekRow.push({
+        day: String(day).padStart(2, '0'),
+        date: this.getDate(day, -1),
+        currentMonth: false,
+      });
     }
     // Add current month days
     for (let day = 1; day <= totalDays; day++) {
-      weekRow.push({ day: String(day).padStart(2, '0') });
+      weekRow.push({
+        day: String(day).padStart(2, '0'),
+        date: this.getDate(day),
+        currentMonth: true
+      });
 
       if (weekRow.length === 7) {
         this.calendar.push([...weekRow]);
@@ -303,7 +339,13 @@ export class CalendarComponent {
     }
     // Add next month's days using a for loop
     for (let nextMonthDay = 1; weekRow.length < 7; nextMonthDay++) {
-      weekRow.push({ day: String(nextMonthDay).padStart(2, '0'), nextMonth: true });
+      weekRow.push({
+        day: String(nextMonthDay).padStart(2, '0'),
+        date: this.getDate(nextMonthDay, 1),
+        nepaliDate: this.convertToNepaliDate(this.getDate(nextMonthDay, 1)),
+        nepaliDay: this.convertToNepaliDate(this.getDate(nextMonthDay, 1))?.split('-')[2],
+        currentMonth: false
+      });
     }
     this.calendar.push([...weekRow]);
   }
@@ -318,11 +360,20 @@ export class CalendarComponent {
 
     // Add previous month's days
     for (let i = startingDay - 1; i >= 0; i--) {
-      weekRow.push({ day: String(prevMonthTotalDays - i).padStart(2, '0'), prevMonth: true });
+      const day = prevMonthTotalDays - i;
+      weekRow.push({
+        day: String(prevMonthTotalDays - i).padStart(2, '0'),
+        date: this.getNepaliDate(day, -1),
+        currentMonth: false
+      });
     }
     // Add current month days
     for (let day = 1; day <= totalDays; day++) {
-      weekRow.push({ day: String(day).padStart(2, '0') });
+      weekRow.push({
+        date: this.getNepaliDate(day),
+        day: String(day).padStart(2, '0'),
+        currentMonth: true
+      });
 
       if (weekRow.length === 7) {
         this.nepaliCalendar.push([...weekRow]);
@@ -331,7 +382,11 @@ export class CalendarComponent {
     }
     // Add next month's days using a for loop
     for (let nextMonthDay = 1; weekRow.length < 7; nextMonthDay++) {
-      weekRow.push({ day: String(nextMonthDay).padStart(2, '0'), nextMonth: true });
+      weekRow.push({
+        day: String(nextMonthDay).padStart(2, '0'),
+        date: this.getNepaliDate(nextMonthDay, 1),
+        currentMonth: false
+      });
     }
     this.nepaliCalendar.push([...weekRow]);
   }

@@ -11,8 +11,11 @@ td {
 }
 
 .grey-out {
-    color: grey;
-    opacity: 0.5;
+    opacity: 0.3;
+}
+
+.holiday {
+    color: red;
 }
 
 .control-section {

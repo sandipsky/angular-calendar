@@ -5,26 +5,26 @@
     </select>
     <button (click)="onClickPrev()"> &lt;</button>
     @if (calendarType == 'AD') {
-    <select (change)="generateCalendar()" [(ngModel)]="selectedMonth">
+    <select (change)="generateCalendar(); selectedDay = 1;" [(ngModel)]="selectedMonth">
         @for (month of months; track $index) {
-        <option [value]="$index">{{month}}</option>
+        <option [ngValue]="$index">{{month}}</option>
         }
     </select>
-    <select (change)="generateCalendar()" [(ngModel)]="selectedYear">
+    <select (change)="generateCalendar();  selectedDay = 1;" [(ngModel)]="selectedYear">
         @for (year of getYears(); track $index) {
-        <option [value]="year">{{year}}</option>
+        <option [ngValue]="year">{{year}}</option>
         }
     </select>
     }
     @else {
-    <select (change)="generateNepaliCalendar()" [(ngModel)]="selectedNepaliMonth">
+    <select (change)="generateNepaliCalendar(); selectedNepaliDay = 1;" [(ngModel)]="selectedNepaliMonth">
         @for (month of nepaliMonths; track $index) {
-        <option [value]="$index">{{month}}</option>
+        <option [ngValue]="$index">{{month}}</option>
         }
     </select>
-    <select (change)="generateNepaliCalendar()" [(ngModel)]="selectedNepaliYear">
+    <select (change)="generateNepaliCalendar(); selectedNepaliDay = 1;" [(ngModel)]="selectedNepaliYear">
         @for (year of getNepaliYears(); track $index) {
-        <option [value]="year">{{year}}</option>
+        <option [ngValue]="year">{{year}}</option>
         }
     </select>
     }
@@ -52,8 +52,9 @@
     <tbody>
         @for (week of calendar; track $index) {
         <tr>
-            @for (day of week; track $index) {
-            <td [ngClass]="{'grey-out': day?.prevMonth || day?.nextMonth}">{{ day.day }}</td>
+            @for (day of week;let i=$index; track $index) {
+            <td [ngClass]="{'grey-out': !day.currentMonth, 'holiday': i==6}">{{ day.day }} <br>
+                {{day.date}}</td>
             }
         </tr>
         }
@@ -119,6 +120,8 @@
 }
 }
 @else {
+@switch (calendarMode) {
+@case ('Monthly') {
 <div>Monthly</div>
 <table>
     <thead>
@@ -131,11 +134,71 @@
     <tbody>
         @for (week of nepaliCalendar; track $index) {
         <tr>
-            @for (day of week; track $index) {
-            <td [ngClass]="{'grey-out': day?.prevMonth || day?.nextMonth}">{{ day.day }}</td>
+            @for (day of week; let i=$index; track $index) {
+            <td [ngClass]="{'grey-out': !day?.currentMonth, 'holiday': i==6}">{{ day.day }} <br>
+                {{day.date}}</td>
             }
         </tr>
         }
     </tbody>
 </table>
+}
+@case ('Weekly') {
+<div>Weekly</div>
+<table>
+    <thead>
+        <tr>
+            <th>Time</th>
+            @for (day of nepaliCalendar[selectedNepaliWeekIndex]; track $index) {
+            <th>{{day.day}} {{weekdays[$index]}}</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @for (hour of getHours(); track $index) {
+        <tr>
+            <td rowspan="4">{{hour}}</td>
+            @for (day of weekdays; track $index) {
+            <td></td>
+            }
+        </tr>
+
+        @for (num of [1,2,3]; track $index) {
+        <tr>
+            @for (day of weekdays; track $index) {
+            <td></td>
+            }
+        </tr>
+        }
+        }
+    </tbody>
+</table>
+}
+@case ('Daily') {
+<div>Daily</div>
+<table>
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>{{getCurrentNepaliWeekDay()}} {{selectedNepaliDay}}, {{nepaliMonths[selectedNepaliMonth]}}
+                {{selectedNepaliYear}}</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (hour of getHours(); track $index) {
+        <tr>
+            <td rowspan="4">{{hour}}</td>
+            <td></td>
+        </tr>
+
+        @for (num of [1,2,3]; track $index) {
+        <tr>
+            <td></td>
+        </tr>
+        }
+        }
+    </tbody>
+</table>
+}
+}
 }
