@@ -4,11 +4,10 @@ import { FormsModule } from '@angular/forms';
 import NepaliDate from 'nepali-date-converter'
 
 @Component({
-  selector: 'app-calendar',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './calendar.component.html',
-  styleUrl: './calendar.component.css'
+    selector: 'app-calendar',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './calendar.component.html',
+    styleUrl: './calendar.component.css',
 })
 export class CalendarComponent {
   calendarType: 'AD' | 'BS' = 'BS';
