@@ -65,6 +65,9 @@
               "buildTarget": "angular-calendar:build:development"
             }
           },
+          "options": {
+            "hmr": false
+          },
           "defaultConfiguration": "development"
         },
         "extract-i18n": {

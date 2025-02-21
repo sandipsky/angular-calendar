@@ -1,17 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import NepaliDate from 'nepali-date-converter'
+import NepaliDate from 'nepali-date-converter';
+import { CalendarDay, CalendarMode, CalendarType } from './calendar.model';
 
 @Component({
-    selector: 'app-calendar',
-    imports: [CommonModule, FormsModule],
-    templateUrl: './calendar.component.html',
-    styleUrl: './calendar.component.css',
+  selector: 'app-calendar',
+  imports: [CommonModule, FormsModule],
+  templateUrl: './calendar.component.html'
 })
+
 export class CalendarComponent {
-  calendarType: 'AD' | 'BS' = 'BS';
-  calendarMode: 'Monthly' | 'Weekly' | 'Daily' = 'Monthly';
+  calendarType: CalendarType = 'BS';
+  calendarMode: CalendarMode = 'Monthly';
   weekdays: string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   selectedYear: number = new Date().getFullYear();
@@ -32,7 +33,7 @@ export class CalendarComponent {
     'November',
     'December',
   ];
-  calendar: any[] = [];
+  calendar: Array<Array<CalendarDay>> = [];
 
   selectedNepaliYear: number = new NepaliDate(new Date()).getYear();
   selectedNepaliMonth: number = new NepaliDate(new Date()).getMonth();
@@ -52,8 +53,7 @@ export class CalendarComponent {
     'Falgun',
     'Chaitra',
   ];
-  nepaliCalendar: any[] = [];
-  private converter = new NepaliDate();
+  nepaliCalendar: Array<Array<CalendarDay>> = [];
 
   constructor() {
     this.generateCalendar();
@@ -92,13 +92,13 @@ export class CalendarComponent {
 
   getSelectedWeekIndex() {
     this.selectedWeekIndex = this.calendar.findIndex(week =>
-      week.some((day: any) => day.day === String(this.selectedDay).padStart(2, '0'))
+      week.some((day: CalendarDay) => day?.englishDay === String(this.selectedDay).padStart(2, '0'))
     );
   }
 
   getSelectedNepaliWeekIndex() {
     this.selectedNepaliWeekIndex = this.nepaliCalendar.findIndex(week =>
-      week.some((day: any) => day.day === String(this.selectedNepaliDay).padStart(2, '0'))
+      week.some((day: CalendarDay) => day?.nepaliDay === String(this.selectedNepaliDay).padStart(2, '0'))
     );
   }
 
@@ -288,12 +288,14 @@ export class CalendarComponent {
 
   convertToNepaliDate(date: string) {
     const d = new NepaliDate(new Date(date)).getDateObject();
-    console.log(d);
-    return '1'; 
+    const nepaliDate = `${d.BS.year}-${String(d.BS.month).padStart(2, '0')}-${String(d.BS.date).padStart(2, '0')}`;
+    return nepaliDate;
   }
 
   convertToEnglishDate(date: string) {
-
+    const d = new NepaliDate(date).getDateObject();
+    const englishDate = `${d.AD.year}-${String(d.AD.month).padStart(2, '0')}-${String(d.AD.date).padStart(2, '0')}`;
+    return englishDate;
   }
 
   getDate(day: number, monthOffset = 0) {
@@ -318,16 +320,20 @@ export class CalendarComponent {
     for (let i = startingDay - 1; i >= 0; i--) {
       const day = prevMonthTotalDays - i;
       weekRow.push({
-        day: String(day).padStart(2, '0'),
-        date: this.getDate(day, -1),
+        englishDay: String(day).padStart(2, '0'),
+        englishDate: this.getDate(day, -1),
+        nepaliDate: this.convertToNepaliDate(this.getDate(day, -1)),
+        nepaliDay: this.convertToNepaliDate(this.getDate(day, -1))?.split('-')[2],
         currentMonth: false,
       });
     }
     // Add current month days
     for (let day = 1; day <= totalDays; day++) {
       weekRow.push({
-        day: String(day).padStart(2, '0'),
-        date: this.getDate(day),
+        englishDay: String(day).padStart(2, '0'),
+        englishDate: this.getDate(day),
+        nepaliDate: this.convertToNepaliDate(this.getDate(day)),
+        nepaliDay: this.convertToNepaliDate(this.getDate(day))?.split('-')[2],
         currentMonth: true
       });
 
@@ -339,8 +345,8 @@ export class CalendarComponent {
     // Add next month's days using a for loop
     for (let nextMonthDay = 1; weekRow.length < 7; nextMonthDay++) {
       weekRow.push({
-        day: String(nextMonthDay).padStart(2, '0'),
-        date: this.getDate(nextMonthDay, 1),
+        englishDay: String(nextMonthDay).padStart(2, '0'),
+        englishDate: this.getDate(nextMonthDay, 1),
         nepaliDate: this.convertToNepaliDate(this.getDate(nextMonthDay, 1)),
         nepaliDay: this.convertToNepaliDate(this.getDate(nextMonthDay, 1))?.split('-')[2],
         currentMonth: false
@@ -355,22 +361,26 @@ export class CalendarComponent {
     const totalDays = new NepaliDate(this.selectedNepaliYear, this.selectedNepaliMonth + 1, 0).getDate();
     const prevMonthTotalDays = new NepaliDate(this.selectedNepaliYear, this.selectedNepaliMonth, 0).getDate();
 
-    let weekRow = [];
+    let weekRow: CalendarDay[] = [];
 
     // Add previous month's days
     for (let i = startingDay - 1; i >= 0; i--) {
       const day = prevMonthTotalDays - i;
       weekRow.push({
-        day: String(prevMonthTotalDays - i).padStart(2, '0'),
-        date: this.getNepaliDate(day, -1),
+        nepaliDay: String(prevMonthTotalDays - i).padStart(2, '0'),
+        nepaliDate: this.getNepaliDate(day, -1),
+        englishDate: this.convertToEnglishDate(this.getNepaliDate(day, -1)),
+        englishDay: this.convertToEnglishDate(this.getDate(day, -1))?.split('-')[2],
         currentMonth: false
       });
     }
     // Add current month days
     for (let day = 1; day <= totalDays; day++) {
       weekRow.push({
-        date: this.getNepaliDate(day),
-        day: String(day).padStart(2, '0'),
+        nepaliDate: this.getNepaliDate(day),
+        nepaliDay: String(day).padStart(2, '0'),
+        englishDate: this.convertToEnglishDate(this.getNepaliDate(day)),
+        englishDay: this.convertToEnglishDate(this.getDate(day))?.split('-')[2],
         currentMonth: true
       });
 
@@ -382,8 +392,10 @@ export class CalendarComponent {
     // Add next month's days using a for loop
     for (let nextMonthDay = 1; weekRow.length < 7; nextMonthDay++) {
       weekRow.push({
-        day: String(nextMonthDay).padStart(2, '0'),
-        date: this.getNepaliDate(nextMonthDay, 1),
+        nepaliDay: String(nextMonthDay).padStart(2, '0'),
+        nepaliDate: this.getNepaliDate(nextMonthDay, 1),
+        englishDate: this.convertToEnglishDate(this.getNepaliDate(nextMonthDay, 1)),
+        englishDay: this.convertToEnglishDate(this.getDate(nextMonthDay, 1))?.split('-')[2],
         currentMonth: false
       });
     }

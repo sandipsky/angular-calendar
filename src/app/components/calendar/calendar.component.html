@@ -53,8 +53,7 @@
         @for (week of calendar; track $index) {
         <tr>
             @for (day of week;let i=$index; track $index) {
-            <td [ngClass]="{'grey-out': !day.currentMonth, 'holiday': i==6}">{{ day.day }} <br>
-                {{day.date}}</td>
+            <td [ngClass]="{'grey-out': !day.currentMonth, 'holiday': i==6}">{{ day?.englishDay }}</td>
             }
         </tr>
         }
@@ -68,7 +67,7 @@
         <tr>
             <th>Time</th>
             @for (day of calendar[selectedWeekIndex]; track $index) {
-            <th>{{day.day}} {{weekdays[$index]}}</th>
+            <th>{{day?.englishDay}} {{weekdays[$index]}}</th>
             }
         </tr>
     </thead>
@@ -135,8 +134,7 @@
         @for (week of nepaliCalendar; track $index) {
         <tr>
             @for (day of week; let i=$index; track $index) {
-            <td [ngClass]="{'grey-out': !day?.currentMonth, 'holiday': i==6}">{{ day.day }} <br>
-                {{day.date}}</td>
+            <td [ngClass]="{'grey-out': !day?.currentMonth, 'holiday': i==6}">{{ day?.nepaliDay }}</td>
             }
         </tr>
         }
@@ -150,7 +148,7 @@
         <tr>
             <th>Time</th>
             @for (day of nepaliCalendar[selectedNepaliWeekIndex]; track $index) {
-            <th>{{day.day}} {{weekdays[$index]}}</th>
+            <th>{{day?.nepaliDay}} {{weekdays[$index]}}</th>
             }
         </tr>
     </thead>
